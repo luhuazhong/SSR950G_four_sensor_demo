@@ -1,0 +1,14 @@
+luma
+luma_stride=1920
+luma_ring_start_line=1080
+luma_ring_end_line=816
+luma_ring_total_line=1344
+luma_table_size=0x12000
+
+
+chroma
+chroma_stride=960
+chroma_ring_start_line=1080
+chroma_ring_end_line=816
+chroma_ring_total_line=1344
+chroma_table_size=0xa000

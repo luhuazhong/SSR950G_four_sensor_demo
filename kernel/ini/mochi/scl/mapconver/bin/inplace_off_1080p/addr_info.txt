@@ -1,0 +1,8 @@
+luma
+luma_data_size=0x1fe000
+luma_table_size=0x12000
+
+
+chroma
+chroma_data_size=0xff000
+chroma_table_size=0xa000

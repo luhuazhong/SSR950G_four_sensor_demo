@@ -1,0 +1,11 @@
+luma:
+ring_height=0x11e00
+ring_start_line=0xC600
+data_size=0x6300
+table_size=0x2000
+
+chroma:
+ring_height=0x9c00
+ring_start_line=0x6C00
+data_size=0x3600
+table_size=0x2000

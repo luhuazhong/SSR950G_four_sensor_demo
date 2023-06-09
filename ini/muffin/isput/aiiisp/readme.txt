@@ -1,0 +1,6 @@
+case2: pass0(E_MI_ISP_SEG_HDR)->pass1(user)->pass2(E_MI_ISP_SEG_3DNR/WDR/RGB2YUV)
+case3: pass0(E_MI_ISP_SEG_HDR)->pass1(user)->pass2(E_MI_ISP_SEG_3DNR/WDR/RGB2YUV)
+case4: pass0(E_MI_ISP_SEG_HDR)->pass1(user)->pass2(E_MI_ISP_SEG_3DNR/WDR/RGB2YUV)
+case5: pass0(E_MI_ISP_SEG_HDR)->pass1(user)->pass2(E_MI_ISP_SEG_3DNR/RGB2YUV)
+case6: pass1(user)->pass2(E_MI_ISP_SEG_3DNR/WDR/RGB2YUV)
+case7: pass0(E_MI_ISP_SEG_HDR)->pass1(user)
