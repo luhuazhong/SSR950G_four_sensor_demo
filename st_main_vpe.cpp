@@ -12150,7 +12150,7 @@ MI_S32 SensorModuleInit(MI_SNR_PADID eSnrPad ,MI_U8 u8ChocieRes)
     return MI_SUCCESS;
 }
 
-MI_S32 VifModuleInit(MI_VIF_GROUP GroupId,MI_SNR_PADID eSnrPad,MI_SYS_PixelFormat_e InputPixel)
+MI_S32 VifModuleInit(MI_VIF_GROUP GroupId,MI_SNR_PADID eSnrPad)
 {
    MI_S32 s32Ret = MI_SUCCESS;
 
@@ -12326,7 +12326,7 @@ EXIT:
 SclModuleNode sclNode[SCL_MAX_NUM];
 
 
-void construct_scl_module(void)
+void SclModuleInit(void)
 { 
 	MI_U32 u32Width;
 	MI_U32 u32Height;
@@ -12377,7 +12377,7 @@ void construct_scl_module(void)
     info("---------------->construct_scl_module\n\n");
 }
 
-void construct_scl_rtsp_module(void)
+void SclModuleInit_Rtsp(void)
 { 
 
 	
@@ -12500,107 +12500,7 @@ EXIT:
 }
 
 
-int32_t BaseModuleInit(void)
-{
-		MI_S32 s32Ret = MI_SUCCESS;
 
-		MI_S32 enable0 = 1;
-		MI_S32 enable1 = 1;
-		MI_S32 enable2 = 1;
-		MI_S32 enable3 = 1;
-		MI_U32 u32VifGroup[] = {0, 2, 4, 6};
-	
-		MI_SNR_PADID eIsp0SnrPad[] = {0, 1, 4, 5};
-		//MI_SNR_PADID eIsp1SnrPad[] = {4, 5};
-	
-		char*env  =  getenv("REACH_VI");
-	
-		if(env)
-		{
-			sscanf(env, "%d %d %d %d", &enable0,&enable1,&enable2,&enable3);
-		}
-		
-		printf("enable:%d %d %d %d	 env:%s\n", enable0,enable1,enable2,enable3,env);
-	
-	
-		if(enable0)
-		{
-			SensorModuleInit(0,0);
-			eIsp0SnrPad[0] = 0;
-		}
-	
-		if(enable1)
-		{
-			SensorModuleInit(1,1);
-			eIsp0SnrPad[1] = 1;
-		}
-	
-		if(enable2)
-		{
-			SensorModuleInit(4,1);
-			eIsp0SnrPad[2] = 4;
-		}
-	
-		if(enable3)
-		{
-			SensorModuleInit(5,1);
-			eIsp0SnrPad[3] = 5;
-		}
-	
-	
-		//初始化4路采集
-	
-		if(enable0)
-		{
-			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[0],0,(MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(E_MI_SYS_DATA_PRECISION_10BPP,E_MI_SYS_PIXEL_BAYERID_RG)), s32Ret);
-		}
-	
-		if(enable1)
-		{
-			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[1],1,(MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(E_MI_SYS_DATA_PRECISION_10BPP,E_MI_SYS_PIXEL_BAYERID_RG)), s32Ret);
-		}
-	
-		if(enable2)
-		{
-			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[2],4,(MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(E_MI_SYS_DATA_PRECISION_10BPP,E_MI_SYS_PIXEL_BAYERID_RG)), s32Ret);
-		}
-		
-		if(enable3)
-		{
-			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[3],5,(MI_SYS_PixelFormat_e)RGB_BAYER_PIXEL(E_MI_SYS_DATA_PRECISION_10BPP,E_MI_SYS_PIXEL_BAYERID_RG)), s32Ret);
-		}
-
-		//初始化ISP vif8 vif24 使用规避直连scl帧率异常问题
-		IspModuleInit(0, eIsp0SnrPad);
-		//IspModuleInit(1, eIsp1SnrPad);
-
-		if(enable0)
-		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[0], 0, 0,    E_MI_MODULE_ID_ISP, 0, 0, 0), s32Ret);
-		}
-	
-		if(enable1)
-		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[1], 0, 0,    E_MI_MODULE_ID_ISP, 0, 1, 0), s32Ret);
-		}
-		
-		if(enable2)
-		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[2], 0, 0,    E_MI_MODULE_ID_ISP, 0, 2, 0), s32Ret);
-		}
-	
-		if(enable3)
-		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[3], 0, 0,    E_MI_MODULE_ID_ISP, 0, 3, 0), s32Ret);
-		}
-
-
- EXIT:
-				
- 	return s32Ret;
-
-
-}
 
 
 static volatile int NeedDeinitVDISP = 0;
@@ -12611,7 +12511,7 @@ static volatile int NeedDeinitVDISP = 0;
 #define YUYV_GREEN              MAKE_YUYV_VALUE(149,43,21)
 #define YUYV_BLUE               MAKE_YUYV_VALUE(29,225,107)
 
-void construct_vdisp_module(void)
+void VdispModuleInit(void)
 {
     typedef struct RECT {
         /*
@@ -13049,7 +12949,7 @@ MI_S32 VencModuleDeInit(MI_U32 u32VencChn)
 }
 
 
-void construct_disp_module(MI_DISP_OutputTiming_e         IntfSync,MI_U32  Width,MI_U32 Height)
+void DispModuleInit(MI_DISP_OutputTiming_e         IntfSync,MI_U32  Width,MI_U32 Height)
 {
     MI_DISP_DEV         DispDev = 0;
     MI_DISP_LAYER       DispLayer = 0;
@@ -13102,7 +13002,7 @@ void construct_disp_module(MI_DISP_OutputTiming_e         IntfSync,MI_U32  Width
 }
 
 
-static MI_BOOL disp_ut_hdmi_init(MI_HDMI_TimingType_e eTimingType)
+static MI_BOOL HdmiModuleInit(MI_HDMI_TimingType_e eTimingType)
 {
     MI_HDMI_TimingType_e eHdmiTiming = eTimingType;
     MI_HDMI_Attr_t stHdmiAttr;
@@ -13289,6 +13189,233 @@ void Bind_isp_scl_vdisp_scl_disp(void) {
 
 
 }
+
+
+int32_t BaseModuleInit(void)
+{
+		MI_S32 s32Ret = MI_SUCCESS;
+
+		MI_S32 enable0 = 1;
+		MI_S32 enable1 = 1;
+		MI_S32 enable2 = 1;
+		MI_S32 enable3 = 1;
+		MI_U32 u32VifGroup[] = {0, 2, 4, 6};
+	
+		MI_SNR_PADID eIsp0SnrPad[] = {0, 1, 4, 5};
+		//MI_SNR_PADID eIsp1SnrPad[] = {4, 5};
+	
+		char*env  =  getenv("REACH_VI");
+		MI_SYS_Init(0);
+		if(env)
+		{
+			sscanf(env, "%d %d %d %d", &enable0,&enable1,&enable2,&enable3);
+		}
+		
+		printf("enable:%d %d %d %d	 env:%s\n", enable0,enable1,enable2,enable3,env);
+	
+	
+		if(enable0)
+		{
+			SensorModuleInit(0,0);
+			eIsp0SnrPad[0] = 0;
+		}
+	
+		if(enable1)
+		{
+			SensorModuleInit(1,1);
+			eIsp0SnrPad[1] = 1;
+		}
+	
+		if(enable2)
+		{
+			SensorModuleInit(4,1);
+			eIsp0SnrPad[2] = 4;
+		}
+	
+		if(enable3)
+		{
+			SensorModuleInit(5,1);
+			eIsp0SnrPad[3] = 5;
+		}
+	
+	
+		//初始化4路采集
+	
+		if(enable0)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[0],0), s32Ret);
+		}
+	
+		if(enable1)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[1],1), s32Ret);
+		}
+	
+		if(enable2)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[2],4), s32Ret);
+		}
+		
+		if(enable3)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[3],5), s32Ret);
+		}
+
+		//初始化ISP vif8 vif24 使用规避直连scl帧率异常问题
+		IspModuleInit(0, eIsp0SnrPad);
+		//IspModuleInit(1, eIsp1SnrPad);
+
+		if(enable0)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[0], 0, 0,    E_MI_MODULE_ID_ISP, 0, 0, 0), s32Ret);
+		}
+	
+		if(enable1)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[1], 0, 0,    E_MI_MODULE_ID_ISP, 0, 1, 0), s32Ret);
+		}
+		
+		if(enable2)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[2], 0, 0,    E_MI_MODULE_ID_ISP, 0, 2, 0), s32Ret);
+		}
+	
+		if(enable3)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[3], 0, 0,    E_MI_MODULE_ID_ISP, 0, 3, 0), s32Ret);
+		}
+
+		SclModuleInit();
+		VdispModuleInit();
+		if(btest_1080)
+		{
+		DispModuleInit(E_MI_DISP_OUTPUT_1080P30,1920,1080);
+		HdmiModuleInit(E_MI_HDMI_TIMING_1080_30P);
+		}
+		else
+		{
+		DispModuleInit(E_MI_DISP_OUTPUT_3840x2160_30,3840,2160);
+		HdmiModuleInit(E_MI_HDMI_TIMING_4K2K_30P);
+		}
+		Bind_isp_scl_vdisp_scl_disp();
+
+
+ EXIT:
+				
+ 	return s32Ret;
+
+
+}
+int32_t BaseModuleInit_Rtsp(void)
+{
+		MI_S32 s32Ret = MI_SUCCESS;
+
+		MI_S32 enable0 = 1;
+		MI_S32 enable1 = 1;
+		MI_S32 enable2 = 1;
+		MI_S32 enable3 = 1;
+		MI_U32 u32VifGroup[] = {0, 2, 4, 6};
+	
+		MI_SNR_PADID eIsp0SnrPad[] = {0, 1, 4, 5};
+		//MI_SNR_PADID eIsp1SnrPad[] = {4, 5};
+	
+		char*env  =  getenv("REACH_VI");
+		MI_SYS_Init(0);
+		if(env)
+		{
+			sscanf(env, "%d %d %d %d", &enable0,&enable1,&enable2,&enable3);
+		}
+		
+		printf("enable:%d %d %d %d	 env:%s\n", enable0,enable1,enable2,enable3,env);
+	
+	
+		if(enable0)
+		{
+			SensorModuleInit(0,0);
+			eIsp0SnrPad[0] = 0;
+		}
+	
+		if(enable1)
+		{
+			SensorModuleInit(1,1);
+			eIsp0SnrPad[1] = 1;
+		}
+	
+		if(enable2)
+		{
+			SensorModuleInit(4,1);
+			eIsp0SnrPad[2] = 4;
+		}
+	
+		if(enable3)
+		{
+			SensorModuleInit(5,1);
+			eIsp0SnrPad[3] = 5;
+		}
+	
+	
+		//初始化4路采集
+	
+		if(enable0)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[0],0), s32Ret);
+		}
+	
+		if(enable1)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[1],1), s32Ret);
+		}
+	
+		if(enable2)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[2],4), s32Ret);
+		}
+		
+		if(enable3)
+		{
+			ExecFuncResult(VifModuleInit((MI_VIF_GROUP)u32VifGroup[3],5), s32Ret);
+		}
+
+		//初始化ISP vif8 vif24 使用规避直连scl帧率异常问题
+		IspModuleInit(0, eIsp0SnrPad);
+		//IspModuleInit(1, eIsp1SnrPad);
+
+		if(enable0)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[0], 0, 0,    E_MI_MODULE_ID_ISP, 0, 0, 0), s32Ret);
+		}
+	
+		if(enable1)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[1], 0, 0,    E_MI_MODULE_ID_ISP, 0, 1, 0), s32Ret);
+		}
+		
+		if(enable2)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[2], 0, 0,    E_MI_MODULE_ID_ISP, 0, 2, 0), s32Ret);
+		}
+	
+		if(enable3)
+		{
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[3], 0, 0,    E_MI_MODULE_ID_ISP, 0, 3, 0), s32Ret);
+		}
+
+
+		int num;
+		SclModuleInit_Rtsp();
+		for(num=0;num<4;num++){
+			VencModuleInit(num);
+		}
+
+
+ EXIT:
+				
+ 	return s32Ret;
+
+
+}
+
+
 
 void unBind_isp_scl_vdisp_scl_disp(void) {
     MI_U16 u16SocId = 0;
@@ -13738,23 +13865,9 @@ int main(int argc, char **argv)
     }
 	if(bUseDisp)
 	{
-	   MI_U32 u32VifGroup=0;
-	   MI_U8 eSnrPad = 0;
-	   MI_SYS_Init(0);
+	   MI_U32 u32VifGroup[]={0,2,4,6};
+	   MI_U8 eSnrPad[] = {0,1,4,5};
 	   BaseModuleInit();
-	   construct_scl_module();
-	   construct_vdisp_module();
-	   if(btest_1080)
-	   {
-	   construct_disp_module(E_MI_DISP_OUTPUT_1080P30,1920,1080);
-	   disp_ut_hdmi_init(E_MI_HDMI_TIMING_1080_30P);
-	   }
-	   else
-	   {
-	   construct_disp_module(E_MI_DISP_OUTPUT_3840x2160_30,3840,2160);
-	   disp_ut_hdmi_init(E_MI_HDMI_TIMING_4K2K_30P);
-	   }
-       Bind_isp_scl_vdisp_scl_disp();
 #if 1
 	   pthread_t pIQthread;
 	   pthread_create(&pIQthread, NULL, ST_IQthread, NULL);
@@ -13774,43 +13887,43 @@ int main(int argc, char **argv)
 
 	   }
 	   usleep(THREAD_SLEEP_TIME_US);
+	   MI_IQSERVER_Close();
 	   unBind_isp_scl_vdisp_scl_disp();
 	   disp_ut_hdmi_deinit();
        destruct_disp_module();
 	   destruct_vdisp_module();
 	   destruct_scl_module();
 	   IspModuleUnInit(0);
-	   for(u32VifGroup=0;u32VifGroup <ST_MAX_VIF_GROUP_NUM;u32VifGroup++){
-	   ExecFuncResult(VifModuleUnInit((MI_VIF_GROUP)u32VifGroup), s32Ret);
-	   }
-	   for(eSnrPad=0; eSnrPad<ST_MAX_SENSOR_NUM; eSnrPad++){
-	   ExecFuncResult(ST_SensorModuleUnInit((MI_SNR_PADID)eSnrPad), s32Ret);
+	   for(int a = 0;a<4;a++)
+	   {
+	   		ExecFuncResult(VifModuleUnInit((MI_VIF_GROUP)u32VifGroup[a]), s32Ret);
+	   		ExecFuncResult(ST_SensorModuleUnInit((MI_SNR_PADID)eSnrPad[a]), s32Ret);
 	   }
 	   MI_SYS_Exit(0);
 
 	}
 	else
 	{
-	int num;
+
     ExecFuncResult(ST_SaveValidParam(), s32Ret);
 #if 0
     ExecFuncResult(ST_BaseModuleInit(), s32Ret);
 #else
-    MI_SYS_Init(0);
+	MI_U32 u32VifGroup[]={0,2,4,6};
+	MI_U8 eSnrPad[] = {0,1,4,5};
+
     ST_DefaultArgs();
-	BaseModuleInit();
-	construct_scl_rtsp_module();
-	for(num=0;num<4;num++){
-		VencModuleInit(num);
-	}
+	BaseModuleInit_Rtsp();
+#if 1
+	pthread_t pIQthread;
+	pthread_create(&pIQthread, NULL, ST_IQthread, NULL);
+#endif
+
 #endif
     ST_RtspServerStart();
 
 
-#if 1
-        pthread_t pIQthread;
-        pthread_create(&pIQthread, NULL, ST_IQthread, NULL);
-#endif
+
 
 
     if(bDetectAD ==TRUE)
@@ -15321,22 +15434,21 @@ int main(int argc, char **argv)
         pthread_join(ptCheck9931, &retarg);
 #endif
     }
-	MI_U32 u32VifGroup=0;
-	MI_U8 eSnrPad = 0;
 
+	int num;
     //ExecFuncResult(ST_BaseModuleUnInit(), s32Ret);
+    MI_IQSERVER_Close();
     unBind_isp_scl_venc();
     for(num=0;num<4;num++){
-	VencModuleDeInit(num);
+		VencModuleDeInit(num);
 	}
 	destruct_scl_rtsp_module();
 	IspModuleUnInit(0);
-	for(u32VifGroup=0;u32VifGroup <ST_MAX_VIF_GROUP_NUM;u32VifGroup++){
-	ExecFuncResult(VifModuleUnInit((MI_VIF_GROUP)u32VifGroup), s32Ret);
-	}
-	for(eSnrPad=0; eSnrPad<ST_MAX_SENSOR_NUM; eSnrPad++){
-	ExecFuncResult(ST_SensorModuleUnInit((MI_SNR_PADID)eSnrPad), s32Ret);
-	}
+    for(int a = 0;a<4;a++)
+    {
+   		ExecFuncResult(VifModuleUnInit((MI_VIF_GROUP)u32VifGroup[a]), s32Ret);
+   		ExecFuncResult(ST_SensorModuleUnInit((MI_SNR_PADID)eSnrPad[a]), s32Ret);
+    }
     ExecFuncResult(ST_SysModuleUnInit(), s32Ret);
 
     pthread_mutex_destroy(&gIniMd5Mutex);
