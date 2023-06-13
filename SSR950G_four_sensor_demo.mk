@@ -24,7 +24,7 @@ PROG_JPD_ENABLE    := 1
 PROG_VENC_ENABLE   := 1
 PROG_DISP_ENABLE   := 1
 PROG_IPU_ENABLE   := 0
-
+PROG_ISPIQ_ENABLE  := 1
 ifeq ($(INTERFACE_CUS3A), y)
 PROG_ISPIQ_ENABLE  := 1
 else
@@ -55,15 +55,15 @@ ifeq ($(PROG_VIF_ENABLE), 1)
 LIBS += -lmi_sensor -lmi_vif
 endif
 
-#ifeq ($(PROG_ISP_ENABLE), 1)
+ifeq ($(PROG_ISP_ENABLE), 1)
 LIBS += -lmi_isp
 LIBS += -lfbc_decode
-#endif
+endif
 
-#ifeq ($(PROG_ISPIQ_ENABLE), 1)
+ifeq ($(PROG_ISPIQ_ENABLE), 1)
 INC  += ./internal/cus3a
 LIBS += -lmi_iqserver -lcus3a -lispalgo -lmi_nir
-#endif
+endif
 
 ifeq ($(PROG_IPU_ENABLE), 1)
 INC  += ./internal/ipu
