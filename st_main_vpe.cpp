@@ -12696,8 +12696,8 @@ void ST_DefaultArgs()
     pstStreamAttr[0].DevId = MI_VENC_DEV_ID_H264_H265_0;
     pstStreamAttr[0].vencChn = 0;
     pstStreamAttr[0].eType = E_MI_VENC_MODTYPE_H265E;
-    pstStreamAttr[0].u32Height = 5472;
-    pstStreamAttr[0].u32Width = 3078;    
+    pstStreamAttr[0].u32Height = 3078;
+    pstStreamAttr[0].u32Width = 5472;    
     pstStreamAttr[0].stVencInBindParam.stChnPort.eModId = E_MI_MODULE_ID_SCL;
     pstStreamAttr[0].stVencInBindParam.stChnPort.u32DevId = 1;
     pstStreamAttr[0].stVencInBindParam.stChnPort.u32ChnId = 0;
@@ -12710,8 +12710,8 @@ void ST_DefaultArgs()
     pstStreamAttr[1].DevId = MI_VENC_DEV_ID_H264_H265_0;
     pstStreamAttr[1].vencChn = 1;
     pstStreamAttr[1].eType = E_MI_VENC_MODTYPE_H265E;
-    pstStreamAttr[1].u32Height = 2592;
-    pstStreamAttr[1].u32Width = 1944;    
+    pstStreamAttr[1].u32Height = 1944;
+    pstStreamAttr[1].u32Width = 2592;    
     pstStreamAttr[1].stVencInBindParam.stChnPort.eModId = E_MI_MODULE_ID_SCL;
     pstStreamAttr[1].stVencInBindParam.stChnPort.u32DevId = 1;
     pstStreamAttr[1].stVencInBindParam.stChnPort.u32ChnId = 1;
@@ -12724,8 +12724,8 @@ void ST_DefaultArgs()
     pstStreamAttr[2].DevId = MI_VENC_DEV_ID_H264_H265_1;
     pstStreamAttr[2].vencChn = 0;
     pstStreamAttr[2].eType = E_MI_VENC_MODTYPE_H264E;
-    pstStreamAttr[2].u32Height = 2592;
-    pstStreamAttr[2].u32Width = 1944;    
+    pstStreamAttr[2].u32Height = 1944;
+    pstStreamAttr[2].u32Width = 2592;    
     pstStreamAttr[2].stVencInBindParam.stChnPort.eModId = E_MI_MODULE_ID_SCL;
     pstStreamAttr[2].stVencInBindParam.stChnPort.u32DevId = 5;
     pstStreamAttr[2].stVencInBindParam.stChnPort.u32ChnId = 0;
@@ -12738,8 +12738,8 @@ void ST_DefaultArgs()
     pstStreamAttr[3].DevId = MI_VENC_DEV_ID_H264_H265_1;
     pstStreamAttr[3].vencChn = 1;
     pstStreamAttr[3].eType = E_MI_VENC_MODTYPE_H264E;
-    pstStreamAttr[3].u32Height = 2592;
-    pstStreamAttr[3].u32Width = 1944;    
+    pstStreamAttr[3].u32Height = 1944;
+    pstStreamAttr[3].u32Width = 2592;    
     pstStreamAttr[3].stVencInBindParam.stChnPort.eModId = E_MI_MODULE_ID_SCL;
     pstStreamAttr[3].stVencInBindParam.stChnPort.u32DevId = 5;
     pstStreamAttr[3].stVencInBindParam.stChnPort.u32ChnId = 1;
