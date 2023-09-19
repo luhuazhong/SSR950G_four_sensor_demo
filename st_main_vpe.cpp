@@ -71,7 +71,9 @@ using json = nlohmann::json;
 #define SUB_STREAM1                "video1"
 #define SUB_STREAM2                "video2"
 #define SUB_STREAM3                "video3"
-
+#define single_rtsp  0             
+#define MULTI_DEV 0
+#define MULTI_CHN 1
 
 ST_VifModAttr_t   gstVifModule;
 ST_IspModeAttr_t gstIspModule;
@@ -12264,15 +12266,16 @@ MI_S32 ST_IspChannelInit(MI_ISP_DEV IspDevId,MI_ISP_CHANNEL IspChnId,MI_SNR_PADI
 
 
 	ST_TransMISnrPadToMIIspBindSensorId(eMiSnrPadId, (MI_ISP_BindSnrId_e *)&stIspChnAttr.u32SensorBindId);
-
-
-		
+#if MULTI_CHN
+	if(IspChnId == 0 && IspDevId ==0)
+	{	
 	stIspChnAttr.u32Sync3AType = E_MI_ISP_SYNC3A_AE|E_MI_ISP_SYNC3A_AWB|E_MI_ISP_SYNC3A_IQ|E_MI_ISP_SYNC3A_1ST_SNR_ONLY;
-
 	ExecFuncResult(MI_ISP_CreateChannel(IspDevId, IspChnId, &stIspChnAttr), s32Ret);
-
 	ExecFuncResult(MI_ISP_SetChnOverlapAttr(IspDevId, IspChnId,E_MI_ISP_OVERLAP_256),s32Ret);
-
+	}
+    	else
+	ExecFuncResult(MI_ISP_CreateChannel(IspDevId, IspChnId, &stIspChnAttr), s32Ret);
+#endif
 	MI_ISP_ChnParam_t  stChnParam;
 	memset(&stChnParam,0x0,sizeof(MI_ISP_ChnParam_t));
 	stChnParam.e3DNRLevel = E_MI_ISP_3DNR_LEVEL2;
@@ -12304,15 +12307,20 @@ MI_S32 IspModuleInit(MI_ISP_DEV IspDevId,MI_SNR_PADID eSnrPad[])
 {
     MI_S32 s32Ret = MI_SUCCESS;
     MI_ISP_DevAttr_t stCreateDevAttr;
-	MI_U32 u32MultiIspDev = MI_ISP_CREATE_MULTI_DEV(IspDevId);
+    int a=1;
+    if(IspDevId == 1)a = 3;
     memset(&stCreateDevAttr, 0x0, sizeof(MI_ISP_DevAttr_t));
-    //stCreateDevAttr.u32DevStitchMask = (0x1<<IspDevId);
+#if MULTI_DEV
+	MI_U32 u32MultiIspDev = MI_ISP_CREATE_MULTI_DEV(IspDevId);
 	stCreateDevAttr.u32DevStitchMask = E_MI_ISP_DEVICEMASK_ID0|E_MI_ISP_DEVICEMASK_ID1; 
-	//STCHECKRESULT(MI_ISP_CreateDevice(u32MultiIspDev, &stCreateDevAttr));  //MI_ISP_CREATE_MULTI_DEV use mullti device
+    ExecFuncResult(MI_ISP_CreateDevice(u32MultiIspDev, &stCreateDevAttr), s32Ret);//MI_ISP_CREATE_MULTI_DEV use mullti device
+#else
+    stCreateDevAttr.u32DevStitchMask = (0x1<<IspDevId);
+	ExecFuncResult(MI_ISP_CreateDevice(IspDevId, &stCreateDevAttr), s32Ret);  
 
-    ExecFuncResult(MI_ISP_CreateDevice(u32MultiIspDev, &stCreateDevAttr), s32Ret);
+#endif
 
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < a; i++)
 	{
 		ExecFuncResult(ST_IspChannelInit(IspDevId, i, eSnrPad[i]), s32Ret);
 	}
@@ -12696,7 +12704,7 @@ void ST_DefaultArgs()
     pstStreamAttr[0].DevId = MI_VENC_DEV_ID_H264_H265_0;
     pstStreamAttr[0].vencChn = 0;
     pstStreamAttr[0].eType = E_MI_VENC_MODTYPE_H265E;
-    pstStreamAttr[0].u32Height = 3078;
+    pstStreamAttr[0].u32Height = 3072;
     pstStreamAttr[0].u32Width = 5472;    
     pstStreamAttr[0].stVencInBindParam.stChnPort.eModId = E_MI_MODULE_ID_SCL;
     pstStreamAttr[0].stVencInBindParam.stChnPort.u32DevId = 1;
@@ -13065,8 +13073,8 @@ void Bind_isp_scl_vdisp_scl_disp(void) {
 	
 	
 		stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-		stSrcChnPort.u32ChnId = 1;
-		stSrcChnPort.u32DevId = 0;
+		stSrcChnPort.u32ChnId = 0;
+		stSrcChnPort.u32DevId = 1;
 		stSrcChnPort.u32PortId = 1;
 		stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 		stDstChnPort.u32ChnId = 1;
@@ -13080,8 +13088,8 @@ void Bind_isp_scl_vdisp_scl_disp(void) {
 	
 	
 		stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-		stSrcChnPort.u32ChnId = 2;
-		stSrcChnPort.u32DevId = 0;
+		stSrcChnPort.u32ChnId = 1;
+		stSrcChnPort.u32DevId = 1;
 		stSrcChnPort.u32PortId = 1;
 		stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 		stDstChnPort.u32ChnId = 0;
@@ -13093,8 +13101,8 @@ void Bind_isp_scl_vdisp_scl_disp(void) {
 			4, 0);
 	
 		stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-		stSrcChnPort.u32ChnId = 3;
-		stSrcChnPort.u32DevId = 0;
+		stSrcChnPort.u32ChnId = 2;
+		stSrcChnPort.u32DevId = 1;
 		stSrcChnPort.u32PortId = 1;
 		stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 		stDstChnPort.u32ChnId = 1;
@@ -13201,8 +13209,9 @@ int32_t BaseModuleInit(void)
 		MI_S32 enable3 = 1;
 		MI_U32 u32VifGroup[] = {0, 2, 4, 6};
 	
-		MI_SNR_PADID eIsp0SnrPad[] = {0, 1, 4, 5};
-		//MI_SNR_PADID eIsp1SnrPad[] = {4, 5};
+		//MI_SNR_PADID eIsp0SnrPad[] = {0, 1, 4, 5};
+		MI_SNR_PADID eIsp0SnrPad[] = {0};
+		MI_SNR_PADID eIsp1SnrPad[] = {1, 4, 5};
 	
 		char*env  =  getenv("REACH_VI");
 		MI_SYS_Init(0);
@@ -13222,20 +13231,20 @@ int32_t BaseModuleInit(void)
 	
 		if(enable1)
 		{
-			SensorModuleInit(1,1);
-			eIsp0SnrPad[1] = 1;
+			SensorModuleInit(1,3);
+			eIsp1SnrPad[0] = 1;
 		}
 	
 		if(enable2)
 		{
-			SensorModuleInit(4,1);
-			eIsp0SnrPad[2] = 4;
+			SensorModuleInit(4,3);
+			eIsp1SnrPad[1] = 4;
 		}
 	
 		if(enable3)
 		{
-			SensorModuleInit(5,1);
-			eIsp0SnrPad[3] = 5;
+			SensorModuleInit(5,3);
+			eIsp1SnrPad[2] = 5;
 		}
 	
 	
@@ -13263,7 +13272,7 @@ int32_t BaseModuleInit(void)
 
 		//初始化ISP vif8 vif24 使用规避直连scl帧率异常问题
 		IspModuleInit(0, eIsp0SnrPad);
-		//IspModuleInit(1, eIsp1SnrPad);
+		IspModuleInit(1, eIsp1SnrPad);
 
 		if(enable0)
 		{
@@ -13272,17 +13281,17 @@ int32_t BaseModuleInit(void)
 	
 		if(enable1)
 		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[1], 0, 0,    E_MI_MODULE_ID_ISP, 0, 1, 0), s32Ret);
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[1], 0, 0,    E_MI_MODULE_ID_ISP, 1, 0, 0), s32Ret);
 		}
 		
 		if(enable2)
 		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[2], 0, 0,    E_MI_MODULE_ID_ISP, 0, 2, 0), s32Ret);
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[2], 0, 0,    E_MI_MODULE_ID_ISP, 1, 1, 0), s32Ret);
 		}
 	
 		if(enable3)
 		{
-			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[3], 0, 0,    E_MI_MODULE_ID_ISP, 0, 3, 0), s32Ret);
+			ExecFuncResult(St_Sys_Bind(E_MI_MODULE_ID_VIF, ST_MAX_VIF_DEV_PERGROUP*u32VifGroup[3], 0, 0,    E_MI_MODULE_ID_ISP, 1, 2, 0), s32Ret);
 		}
 
 		SclModuleInit();
@@ -13506,8 +13515,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	stDstChnPort.u32PortId = 0;
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 	stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stSrcChnPort.u32ChnId = 1;
-	stSrcChnPort.u32DevId = 0;
+	stSrcChnPort.u32ChnId = 0;
+	stSrcChnPort.u32DevId = 1;
 	stSrcChnPort.u32PortId = 1;
 	stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 	stDstChnPort.u32ChnId = 1;
@@ -13516,8 +13525,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 	
 	stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stSrcChnPort.u32ChnId = 2;
-	stSrcChnPort.u32DevId = 0;
+	stSrcChnPort.u32ChnId = 1;
+	stSrcChnPort.u32DevId = 1;
 	stSrcChnPort.u32PortId = 1;
 	stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 	stDstChnPort.u32ChnId = 0;
@@ -13525,8 +13534,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	stDstChnPort.u32PortId = 0;
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 	stSrcChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stSrcChnPort.u32ChnId = 3;
-	stSrcChnPort.u32DevId = 0;
+	stSrcChnPort.u32ChnId = 2;
+	stSrcChnPort.u32DevId = 1;
 	stSrcChnPort.u32PortId = 1;
 	stDstChnPort.eModId = E_MI_MODULE_ID_SCL;
 	stDstChnPort.u32ChnId = 1;
@@ -13549,8 +13558,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	stSrcChnPort.u32DevId = 8;
 	stSrcChnPort.u32PortId = 0;
 	stDstChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stDstChnPort.u32ChnId = 1;
-	stDstChnPort.u32DevId = 0;
+	stDstChnPort.u32ChnId = 0;
+	stDstChnPort.u32DevId = 1;
 	stDstChnPort.u32PortId = 0;
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 	stSrcChnPort.eModId = E_MI_MODULE_ID_VIF;
@@ -13558,8 +13567,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	stSrcChnPort.u32DevId = 16;
 	stSrcChnPort.u32PortId = 0;
 	stDstChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stDstChnPort.u32ChnId = 2;
-	stDstChnPort.u32DevId = 0;
+	stDstChnPort.u32ChnId = 1;
+	stDstChnPort.u32DevId = 1;
 	stDstChnPort.u32PortId = 0;
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 	stSrcChnPort.eModId = E_MI_MODULE_ID_VIF;
@@ -13567,8 +13576,8 @@ void unBind_isp_scl_vdisp_scl_disp(void) {
 	stSrcChnPort.u32DevId = 24;
 	stSrcChnPort.u32PortId = 0;
 	stDstChnPort.eModId = E_MI_MODULE_ID_ISP;
-	stDstChnPort.u32ChnId = 3;
-	stDstChnPort.u32DevId = 0;
+	stDstChnPort.u32ChnId = 2;
+	stDstChnPort.u32DevId = 1;
 	stDstChnPort.u32PortId = 0;
 	MI_SYS_UnBindChnPort(u16SocId, &stSrcChnPort, &stDstChnPort);
 
@@ -13799,20 +13808,31 @@ MI_S32 IspModuleUnInit(MI_ISP_DEV IspDevId)
     MI_S32 s32Ret = MI_SUCCESS;
     MI_ISP_CHANNEL IspChnId = 0;
     MI_ISP_PORT  IspOutPortId =1;
-
-	for(IspChnId=0; IspChnId<4; IspChnId++)
+	if(IspDevId == 0)
 	{
-    		ExecFuncResult(MI_ISP_DisableOutputPort(IspDevId, IspChnId,IspOutPortId), s32Ret);
-	}
 	
-    for(IspChnId=0; IspChnId<4; IspChnId++)
-    {
-   
-            ExecFuncResult(MI_ISP_StopChannel(IspDevId, IspChnId), s32Ret);
-            ExecFuncResult(MI_ISP_DestroyChannel(IspDevId, IspChnId), s32Ret);
-
-    }
-    
+		ExecFuncResult(MI_ISP_DisableOutputPort(IspDevId, 0,IspOutPortId), s32Ret);
+	ExecFuncResult(MI_ISP_StopChannel(IspDevId, 0), s32Ret);
+	ExecFuncResult(MI_ISP_DestroyChannel(IspDevId, 0), s32Ret);
+	
+	}
+	else
+	{
+		for(IspChnId=0; IspChnId<3; IspChnId++)
+		{
+				ExecFuncResult(MI_ISP_DisableOutputPort(IspDevId, IspChnId,IspOutPortId), s32Ret);
+		}
+	
+		for(IspChnId=0; IspChnId<3; IspChnId++)
+		{
+	
+			ExecFuncResult(MI_ISP_StopChannel(IspDevId, IspChnId), s32Ret);
+			ExecFuncResult(MI_ISP_DestroyChannel(IspDevId, IspChnId), s32Ret);
+	
+		}
+	
+	
+	}
     ExecFuncResult(MI_ISP_DestoryDevice(IspDevId), s32Ret);
 
 EXIT:
@@ -13868,7 +13888,7 @@ int main(int argc, char **argv)
 	   MI_U32 u32VifGroup[]={0,2,4,6};
 	   MI_U8 eSnrPad[] = {0,1,4,5};
 	   BaseModuleInit();
-#if 1
+#if MI_ISPIQ_SUPPORT
 	   pthread_t pIQthread;
 	   pthread_create(&pIQthread, NULL, ST_IQthread, NULL);
 #endif
@@ -13894,6 +13914,7 @@ int main(int argc, char **argv)
 	   destruct_vdisp_module();
 	   destruct_scl_module();
 	   IspModuleUnInit(0);
+	   IspModuleUnInit(1);
 	   for(int a = 0;a<4;a++)
 	   {
 	   		ExecFuncResult(VifModuleUnInit((MI_VIF_GROUP)u32VifGroup[a]), s32Ret);
@@ -13914,7 +13935,7 @@ int main(int argc, char **argv)
 
     ST_DefaultArgs();
 	BaseModuleInit_Rtsp();
-#if 1
+#if MI_ISPIQ_SUPPORT
 	pthread_t pIQthread;
 	pthread_create(&pIQthread, NULL, ST_IQthread, NULL);
 #endif
