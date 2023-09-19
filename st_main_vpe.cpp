@@ -12270,7 +12270,7 @@ MI_S32 ST_IspChannelInit(MI_ISP_DEV IspDevId,MI_ISP_CHANNEL IspChnId,MI_SNR_PADI
 	if(IspChnId == 0 && IspDevId ==0)
 	{	
 	stIspChnAttr.u32Sync3AType = E_MI_ISP_SYNC3A_AE|E_MI_ISP_SYNC3A_AWB|E_MI_ISP_SYNC3A_IQ|E_MI_ISP_SYNC3A_1ST_SNR_ONLY;
-	ExecFuncResult(MI_ISP_CreateChannel(IspDevId, IspChnId, &stIspChnAttr), s32Ret);
+	ExecFuncResult(MI_ISP_CreateChannel(IspDevId, MI_ISP_CREATE_MULTI_CHN(IspChnId), &stIspChnAttr), s32Ret);
 	ExecFuncResult(MI_ISP_SetChnOverlapAttr(IspDevId, IspChnId,E_MI_ISP_OVERLAP_256),s32Ret);
 	}
     	else
